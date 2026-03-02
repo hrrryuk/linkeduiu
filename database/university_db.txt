@@ -1,0 +1,134 @@
+-- CREATE DATABASE
+CREATE DATABASE university_db DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE university_db;
+
+-- USERS TABLE
+CREATE TABLE users (
+  id VARCHAR(20) PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  department ENUM('CSE', 'EEE', 'DS') NOT NULL,
+  email VARCHAR(100) COLLATE utf8mb4_unicode_ci UNIQUE NOT NULL,
+  role ENUM('student', 'faculty') NOT NULL,
+  photo VARCHAR(255) NOT NULL DEFAULT 'user.png'
+);
+
+-- STUDENTS TABLE
+CREATE TABLE students (
+  student_id VARCHAR(20) PRIMARY KEY,
+  cgpa DECIMAL(3,2) DEFAULT 0.00 CHECK (cgpa BETWEEN 0.00 AND 4.00),
+  credits INT DEFAULT 0 CHECK (credits >= 0),
+  FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- FACULTY TABLE
+CREATE TABLE faculty (
+  faculty_id VARCHAR(20) PRIMARY KEY,
+  FOREIGN KEY (faculty_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- COURSES TABLE
+CREATE TABLE courses (
+  course_code VARCHAR(20) PRIMARY KEY,
+  course_name VARCHAR(100) NOT NULL,
+  credit INT NOT NULL CHECK (credit >= 1),
+  department ENUM('CSE', 'EEE', 'DS') NOT NULL
+);
+
+-- GRADES TABLE
+CREATE TABLE grades (
+  grade ENUM('A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F') PRIMARY KEY,
+  point DECIMAL(3,2) NOT NULL CHECK (point BETWEEN 0.00 AND 4.00)
+);
+
+-- SEMESTERS TABLE
+CREATE TABLE semesters (
+  semester ENUM('spring', 'summer', 'fall') NOT NULL,
+  year INT NOT NULL,
+  start_date DATE NOT NULL,
+  end_date DATE NOT NULL,
+  PRIMARY KEY (semester, year),
+  CHECK (start_date < end_date)
+);
+
+-- SECTIONS TABLE
+CREATE TABLE sections (
+  course_code VARCHAR(20) NOT NULL,
+  section VARCHAR(3) NOT NULL,
+  semester ENUM('spring', 'summer', 'fall') NOT NULL,
+  year INT NOT NULL,
+  faculty_id VARCHAR(20) NOT NULL,
+  PRIMARY KEY (course_code, section, semester, year),
+  FOREIGN KEY (course_code) REFERENCES courses(course_code),
+  FOREIGN KEY (faculty_id) REFERENCES faculty(faculty_id),
+  FOREIGN KEY (semester, year) REFERENCES semesters(semester, year)
+);
+
+-- SECTION SCHEDULES TABLE
+CREATE TABLE section_schedules (
+  course_code VARCHAR(20) NOT NULL,
+  section VARCHAR(3) NOT NULL,
+  semester ENUM('spring', 'summer', 'fall') NOT NULL,
+  year INT NOT NULL,
+  day_of_week ENUM('saturday','sunday','monday','tuesday','wednesday','thursday','friday') NOT NULL,
+  start_time TIME NOT NULL,
+  end_time TIME NOT NULL,
+  PRIMARY KEY (course_code, section, semester, year, day_of_week, start_time),
+  FOREIGN KEY (course_code, section, semester, year)
+    REFERENCES sections(course_code, section, semester, year) ON DELETE CASCADE,
+  CHECK (start_time < end_time)
+);
+
+-- STUDENT ENROLLMENTS TABLE
+CREATE TABLE student_enrollments (
+  student_id VARCHAR(20) NOT NULL,
+  course_code VARCHAR(20) NOT NULL,
+  section VARCHAR(3) NOT NULL,
+  semester ENUM('spring', 'summer', 'fall') NOT NULL,
+  year INT NOT NULL,
+  status ENUM('enrolled', 'withdrawn', 'completed') NOT NULL DEFAULT 'enrolled',
+  PRIMARY KEY (student_id, course_code, section, semester, year),
+  UNIQUE (student_id, course_code, semester, year),
+  FOREIGN KEY (student_id) REFERENCES students(student_id),
+  FOREIGN KEY (course_code, section, semester, year)
+    REFERENCES sections(course_code, section, semester, year) ON DELETE CASCADE
+);
+
+-- STUDENT GRADES TABLE
+CREATE TABLE student_grades (
+  student_id VARCHAR(20) NOT NULL,
+  course_code VARCHAR(20) NOT NULL,
+  section VARCHAR(3) NOT NULL,
+  semester ENUM('spring', 'summer', 'fall') NOT NULL,
+  year INT NOT NULL,
+  obtained_grade ENUM('A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F') NOT NULL,
+  PRIMARY KEY (student_id, course_code, section, semester, year),
+  FOREIGN KEY (student_id) REFERENCES students(student_id),
+  FOREIGN KEY (course_code, section, semester, year)
+    REFERENCES sections(course_code, section, semester, year) ON DELETE CASCADE,
+  FOREIGN KEY (obtained_grade) REFERENCES grades(grade)
+);
+
+-- For quick lookup of student academic data
+CREATE INDEX idx_students_student_id ON students(student_id);
+CREATE INDEX idx_faculty_faculty_id ON faculty(faculty_id);
+
+-- For course lookups and joins
+CREATE INDEX idx_courses_department ON courses(department);
+
+-- For section joins
+CREATE INDEX idx_sections_faculty_id ON sections(faculty_id);
+CREATE INDEX idx_sections_semester_year ON sections(semester, year);
+
+-- For section_schedules joins
+CREATE INDEX idx_section_schedules_course_section_semester_year 
+  ON section_schedules(course_code, section, semester, year);
+
+-- For student_enrollments and grades
+CREATE INDEX idx_student_enrollments_student_id ON student_enrollments(student_id);
+CREATE INDEX idx_student_enrollments_section ON student_enrollments(course_code, section, semester, year);
+
+CREATE INDEX idx_student_grades_student_id ON student_grades(student_id);
+CREATE INDEX idx_student_grades_section ON student_grades(course_code, section, semester, year);
+
+-- For grades table (not needed as grade is already PRIMARY KEY)
+-- CREATE INDEX idx_grades_grade ON grades(grade); -- redundant

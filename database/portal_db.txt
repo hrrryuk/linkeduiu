@@ -1,0 +1,211 @@
+-- CREATE DATABASE
+CREATE DATABASE portal_db DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE portal_db;
+
+-- USERS TABLE
+CREATE TABLE users (
+  id VARCHAR(20) PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  department ENUM('CSE', 'EEE', 'DS') NOT NULL,
+  email VARCHAR(100) COLLATE utf8mb4_unicode_ci UNIQUE NOT NULL,
+  password VARCHAR(255) NOT NULL,
+  role ENUM('student', 'faculty') NOT NULL,
+  photo VARCHAR(255) NOT NULL DEFAULT 'user.png'
+);
+
+-- STUDENTS TABLE
+CREATE TABLE students (
+  student_id VARCHAR(20) PRIMARY KEY,
+  cgpa DECIMAL(3,2) DEFAULT 0.00 CHECK (cgpa BETWEEN 0.00 AND 4.00),
+  credits INT DEFAULT 0 CHECK (credits >= 0),
+  resume VARCHAR(255) DEFAULT NULL,
+  FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- FACULTY TABLE
+CREATE TABLE faculty (
+  faculty_id VARCHAR(20) PRIMARY KEY,
+  FOREIGN KEY (faculty_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- COURSES TABLE
+CREATE TABLE courses (
+  course_code VARCHAR(20) PRIMARY KEY,
+  course_name VARCHAR(100) NOT NULL,
+  department ENUM('CSE', 'EEE', 'DS') NOT NULL
+);
+
+-- GRADES TABLE
+CREATE TABLE grades (
+  grade ENUM('A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F') PRIMARY KEY,
+  point DECIMAL(3,2) NOT NULL CHECK (point BETWEEN 0.00 AND 4.00)
+);
+
+-- COMPLETED COURSES TABLE
+CREATE TABLE completed_courses (
+  student_id VARCHAR(20) NOT NULL,
+  course_code VARCHAR(20) NOT NULL,
+  obtained_grade ENUM('A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F') NOT NULL,
+  PRIMARY KEY (student_id, course_code),
+  FOREIGN KEY (student_id) REFERENCES students(student_id),
+  FOREIGN KEY (course_code) REFERENCES courses(course_code),
+  FOREIGN KEY (obtained_grade) REFERENCES grades(grade)
+);
+
+-- STUDENT SCHEDULES TABLE
+CREATE TABLE student_schedules (
+  student_id VARCHAR(20) NOT NULL,
+  day_of_week ENUM('saturday','sunday','monday','tuesday','wednesday','thursday','friday') NOT NULL,
+  start_time TIME NOT NULL,
+  end_time TIME NOT NULL,
+  PRIMARY KEY (student_id, day_of_week, start_time),
+  FOREIGN KEY (student_id) REFERENCES students(student_id),
+  CHECK (start_time < end_time)
+);
+
+-- SECTIONS TABLE
+CREATE TABLE sections (
+  course_code VARCHAR(20) NOT NULL,
+  section VARCHAR(3) NOT NULL,
+  faculty_id VARCHAR(20) NOT NULL,
+  PRIMARY KEY (course_code, section),
+  FOREIGN KEY (faculty_id) REFERENCES faculty(faculty_id),
+  FOREIGN KEY (course_code) REFERENCES courses(course_code)
+);
+
+-- SECTION SCHEDULES TABLE
+CREATE TABLE section_schedules (
+  course_code VARCHAR(20) NOT NULL,
+  section VARCHAR(3) NOT NULL,
+  day_of_week ENUM('saturday','sunday','monday','tuesday','wednesday','thursday','friday') NOT NULL,
+  start_time TIME NOT NULL,
+  end_time TIME NOT NULL,
+  PRIMARY KEY (course_code, section, day_of_week, start_time),
+  FOREIGN KEY (course_code, section) REFERENCES sections(course_code, section),
+  CHECK (start_time < end_time)
+);
+
+-- JOB POSTINGS TABLE
+CREATE TABLE job_postings (
+  faculty_id VARCHAR(20) NOT NULL,
+  course_code VARCHAR(20) NOT NULL,
+  section VARCHAR(3) NOT NULL,
+  job_role ENUM('UA', 'GRADER') NOT NULL,
+  min_cgpa DECIMAL(3,2) NOT NULL DEFAULT 0.00 CHECK (min_cgpa BETWEEN 0.00 AND 4.00),
+  min_credit INT NOT NULL DEFAULT 0 CHECK (min_credit >= 0),
+  min_grade ENUM('A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F') NOT NULL,
+  deadline DATE NOT NULL,
+  posted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CHECK (deadline >= DATE(posted_at)),
+  PRIMARY KEY (faculty_id, course_code, section, job_role),
+  FOREIGN KEY (faculty_id) REFERENCES faculty(faculty_id) ON DELETE CASCADE,
+  FOREIGN KEY (course_code, section) REFERENCES sections(course_code, section),
+  FOREIGN KEY (min_grade) REFERENCES grades(grade)
+);
+
+-- JOB APPLICATIONS TABLE
+CREATE TABLE job_applications (
+  student_id VARCHAR(20) NOT NULL,
+  faculty_id VARCHAR(20) NOT NULL,
+  course_code VARCHAR(20) NOT NULL,
+  section VARCHAR(3) NOT NULL,
+  job_role ENUM('UA', 'GRADER') NOT NULL,
+  resume VARCHAR(255) NOT NULL,
+  endorsements TEXT DEFAULT NULL,
+  status ENUM('pending', 'accepted', 'rejected') NOT NULL DEFAULT 'pending',
+  applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (student_id, faculty_id, course_code, section, job_role),
+  FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE,
+  FOREIGN KEY (faculty_id, course_code, section, job_role) REFERENCES job_postings(faculty_id, course_code, section, job_role) ON DELETE CASCADE
+);
+
+-- ENDORSEMENTS TABLE
+CREATE TABLE endorsements (
+  faculty_id VARCHAR(20) NOT NULL,
+  student_id VARCHAR(20) NOT NULL,
+  PRIMARY KEY (faculty_id, student_id),
+  FOREIGN KEY (faculty_id) REFERENCES faculty(faculty_id) ON DELETE CASCADE,
+  FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE
+);
+
+-- HIRED APPLICANTS TABLE
+CREATE TABLE hired_applicants (
+  student_id VARCHAR(20) NOT NULL,
+  faculty_id VARCHAR(20) NOT NULL,
+  course_code VARCHAR(20) NOT NULL,
+  section VARCHAR(3) NOT NULL,
+  job_role ENUM('UA', 'GRADER') NOT NULL,
+  hired_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  resign_request BOOLEAN DEFAULT FALSE,
+  PRIMARY KEY (student_id, faculty_id, course_code, section, job_role),
+  FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE,
+  FOREIGN KEY (faculty_id) REFERENCES faculty(faculty_id) ON DELETE CASCADE
+);
+
+-- EXPERIENCES TABLE
+CREATE TABLE experiences (
+  student_id VARCHAR(20) NOT NULL,
+  course_code VARCHAR(20) NOT NULL,
+  job_role ENUM('UA', 'GRADER') NOT NULL,
+  PRIMARY KEY (student_id, course_code, job_role),
+  FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE,
+  FOREIGN KEY (course_code) REFERENCES courses(course_code) ON DELETE CASCADE
+);
+
+-- SYNC INFO TABLE
+CREATE TABLE sync_info (
+  synced_semester ENUM('spring', 'summer', 'fall') NOT NULL,
+  synced_year INT NOT NULL,
+  last_synced_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (synced_semester, synced_year)
+);
+
+-- SCHEDULED TASKS TABLE
+CREATE TABLE scheduled_tasks (
+    task_name VARCHAR(100) PRIMARY KEY, 
+    last_run DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    interval_minutes INT NOT NULL,
+    enabled BOOLEAN DEFAULT TRUE
+);
+
+-- Indexes for FOREIGN KEYS and commonly queried columns
+-- Indexes for optimization
+
+-- STUDENTS TABLE
+CREATE INDEX idx_students_student_id ON students(student_id);
+
+-- FACULTY TABLE
+CREATE INDEX idx_faculty_faculty_id ON faculty(faculty_id);
+
+-- COMPLETED COURSES TABLE
+CREATE INDEX idx_completed_courses_student_id ON completed_courses(student_id);
+CREATE INDEX idx_completed_courses_course_code ON completed_courses(course_code);
+
+-- STUDENT SCHEDULES TABLE
+CREATE INDEX idx_student_schedules_student_id ON student_schedules(student_id);
+
+-- SECTIONS TABLE
+CREATE INDEX idx_sections_faculty_id ON sections(faculty_id);
+
+-- SECTION SCHEDULES TABLE
+CREATE INDEX idx_section_schedules_course_section ON section_schedules(course_code, section);
+
+-- JOB POSTINGS TABLE
+-- Composite PK covers all columns, no separate index needed here
+
+-- JOB APPLICATIONS TABLE
+-- Composite PK covers all columns, no separate index needed here
+CREATE INDEX idx_job_applications_student_id ON job_applications(student_id);
+
+-- ENDORSEMENTS TABLE
+-- Composite PK covers both columns, but separate indexes help for single-column filtering
+CREATE INDEX idx_endorsements_faculty_id ON endorsements(faculty_id);
+CREATE INDEX idx_endorsements_student_id ON endorsements(student_id);
+
+-- HIRED APPLICANTS TABLE
+-- Composite PK covers all columns, no separate index needed here
+
+-- EXPERIENCES TABLE
+-- Composite PK covers all columns, no separate index needed here
+CREATE INDEX idx_experiences_student_id ON experiences(student_id);
+CREATE INDEX idx_experiences_course_code ON experiences(course_code);

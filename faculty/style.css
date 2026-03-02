@@ -1,0 +1,336 @@
+@import url('https://fonts.googleapis.com/css2?family=Mulish:wght@200..1000&family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: "POPPINS", sans-serif;
+    border-radius: 2px;
+
+    --box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px;
+    --font-size-l: 18px;
+    --font-size: 16px;
+    --font-size-s: 14px;
+    --color-accent: rgb(255, 115, 0);
+    --padding-inside: 30px;
+}
+
+.flash {
+    display: flex;
+    justify-content: space-between;
+    column-gap: 20px;
+    font-size: var(--font-size);
+    font-weight: 500;
+    line-height: 2em;
+    color: crimson;
+    margin-top: 20px;
+}
+
+h1 {
+    font-size: 40px;
+    letter-spacing: 2px;
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%);
+}
+
+h2 {
+    font-size: 24px;
+    font-weight: 600;
+}
+
+h3 {
+    font-size: var(--font-size-l);
+    font-weight: 500;
+}
+
+a {
+    color: black;
+    text-underline-offset: 2px;
+}
+
+label {
+    font-size: var(--font-size);
+    font-weight: 500;
+}
+
+select,
+input,
+button {
+    outline: none;
+    border: 1px solid;
+    padding: 5px 10px;
+    font-size: 14px;
+}
+
+button {
+    cursor: pointer;
+}
+
+input[type="date"] {
+    width: 218px;
+}
+
+button[type="submit"] {
+    background-color: var(--color-accent);
+    color: white;
+    font-size: var(--font-size);
+}
+
+header {
+    display: flex;
+    justify-content: center;
+    height: 80px;
+    box-shadow: var(--box-shadow);
+}
+
+.container {
+    width: 1440px;
+    margin: 0 20px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logout {
+    font-size: 16px;
+    padding: 5px 20px;
+    background-color: var(--color-accent);
+    text-decoration: none;
+    color: white;
+}
+
+main {
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+
+.main {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 30px;
+}
+
+.profile {
+    grid-column: span 3;
+    box-shadow: var(--box-shadow);
+    padding: var(--padding-inside);
+    display: flex;
+    flex-direction: column;
+    row-gap: 20px;
+}
+
+.profile>img {
+    width: 80px;
+}
+
+.profile-info {
+    display: flex;
+}
+
+.profile-info p {
+    line-height: 1.8em;
+}
+
+.profile-attributes {
+    font-weight: 500;
+}
+
+#profile-update-form {
+    display: flex;
+    flex-direction: column;
+    row-gap: 10px;
+}
+
+.job-post {
+    grid-column: span 9;
+    box-shadow: var(--box-shadow);
+    padding: var(--padding-inside);
+}
+
+.job-post-form {
+    display: flex;
+    flex-wrap: wrap;
+    row-gap: 20px;
+    margin-top: 20px;
+}
+
+.job-post-form-rows {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+}
+
+.job-post-form-rows:nth-child(1) select[name="select_course"] {
+    min-width: 600px;
+}
+
+.job-post-form-rows:nth-child(2) input {
+    width: 120px;
+}
+
+.job-post-form button {
+    width: 218px;
+}
+
+.job-posted {
+    grid-column: span 12;
+    box-shadow: var(--box-shadow);
+    padding: var(--padding-inside);
+    display: flex;
+    flex-direction: column;
+    row-gap: 20px;
+}
+
+.job-card {
+    box-shadow: var(--box-shadow);
+    padding: var(--padding-inside);
+    display: flex;
+    flex-direction: column;
+    row-gap: 30px;
+}
+
+.job-info {
+    display: flex;
+    justify-content: space-between;
+}
+
+.job-info-text>div {
+    display: flex;
+    margin-top: 10px;
+}
+
+.job-info-actions {
+    display: flex;
+    column-gap: 20px;
+    align-items: center;
+}
+
+.job-info-actions>button {
+    width: 120px;
+}
+
+.job-info-actions>form {
+    width: 120px;
+}
+
+.job-info-actions>form>button {
+    height: 100%;
+    width: 100%;
+}
+
+.job-action-edit {
+    display: flex;
+    justify-content: space-between;
+    column-gap: 20px;
+}
+
+.job-action-edit>div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    row-gap: 10px;
+}
+
+.job-action-edit input {
+    text-align: center;
+}
+
+.job-action-edit>button {
+    width: 260px;
+}
+
+.job-action-view {
+    padding-top: 20px;
+    text-align: center;
+    border-collapse: collapse;
+}
+
+th,
+td {
+    border: 1px solid;
+    padding: 10px;
+}
+
+th {
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+td {
+    font-size: var(--font-size-s);
+}
+
+.resume-actions>a {
+    
+}
+
+td button {
+    width: 100%;
+}
+
+.hidden {
+    display: none;
+}
+
+.hired-applicants {
+    grid-column: span 12;
+    box-shadow: var(--box-shadow);
+    padding: var(--padding-inside);
+}
+
+.students-grid {
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.student-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    row-gap: 20px;
+    padding: var(--padding-inside);
+    box-shadow: var(--box-shadow);
+}
+
+.student-card-info {
+    display: flex;
+}
+
+.student-card-info p {
+    font-size: var(--font-size-s);
+    line-height: 2em;
+}
+
+.info-attributes {
+    font-weight: 500;
+}
+
+.student-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    column-gap: 20px;
+}
+
+.student-card-footer>img {
+    width: 70px;
+}
+
+.student-card-actions {
+    display: flex;
+    justify-content: space-between;
+    column-gap: 20px;
+}
+
+.student-card-actions>button {
+    font-size: var(--font-size-s);
+    width: 100px;
+}

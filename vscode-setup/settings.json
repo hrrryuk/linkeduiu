@@ -1,0 +1,19 @@
+{
+  "editor.cursorBlinking": "expand",
+  "editor.cursorSmoothCaretAnimation": "on",
+  "editor.wordWrap": "on",
+  "editor.formatOnSave": true,
+  "workbench.iconTheme": "material-icon-theme",
+  "php.validate.executablePath": "C:/xampp/php/php.exe",
+  "liveServer.settings.NoBrowser": true,
+  "liveServer.settings.donotShowInfoMsg": true,
+  "phpserver.phpConfigPath": "C:/xampp/php/php.ini",
+  "phpserver.phpPath": "C:/xampp/php/php.exe",
+  "liveServer.settings.wait": 500,
+  "files.autoSave": "afterDelay",
+  "files.autoSaveDelay": 5000,
+  "auto-rename-tag.activationOnLanguage": [
+    "*"
+  ],
+  "editor.minimap.enabled": false
+}
